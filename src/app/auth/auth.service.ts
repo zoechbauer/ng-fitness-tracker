@@ -6,7 +6,7 @@ export class AuthService {
 
   constructor() {}
 
-  register(user: AuthData) {
+  registerUser(user: AuthData) {
     this.user = {
       email: user.email,
       userId: Math.round(Math.random() * 10000).toString(),
