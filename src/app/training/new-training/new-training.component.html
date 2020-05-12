@@ -4,7 +4,14 @@
       Time to start a workout!
     </mat-card-title>
     <mat-card-content>
-      Select type of training
+      <mat-form-field>
+        <mat-select placeholder="Select your training">
+          <mat-option value="crunches">Crunches</mat-option>
+          <mat-option value="touch-toes">Touch Toes</mat-option>
+          <mat-option value="side-lunges">Side Lunges</mat-option>
+          <mat-option value="burpees">Burpees</mat-option>
+        </mat-select>
+      </mat-form-field>
     </mat-card-content>
     <mat-card-actions>
       <button type="submit" mat-button>Start</button>
