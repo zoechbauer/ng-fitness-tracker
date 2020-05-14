@@ -1,3 +1,13 @@
+<div fxLayoutAlign="center center">
+  <mat-form-field fxFlex="40%">
+    <input
+      matInput
+      type="text"
+      placeholder="Filter"
+      (keyup)="doFilter($event.target.value)"
+    />
+  </mat-form-field>
+</div>
 <table mat-table [dataSource]="datasource" matSort>
   <ng-container matColumnDef="date">
     <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
