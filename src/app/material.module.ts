@@ -14,6 +14,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 const MaterialModules = [
   MatButtonModule,
@@ -31,6 +34,9 @@ const MaterialModules = [
   MatSelectModule,
   MatProgressSpinnerModule,
   MatDialogModule,
+  MatTableModule,
+  MatSortModule,
+  MatPaginatorModule,
 ];
 
 @NgModule({
