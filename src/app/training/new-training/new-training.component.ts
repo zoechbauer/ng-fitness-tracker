@@ -1,9 +1,10 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { Exercise } from '../exercise.model';
+import { map } from 'rxjs/operators';
 import { TrainingService } from '../training.service';
-import { NgForm } from '@angular/forms';
+import { Exercise } from '../exercise.model';
 
 @Component({
   selector: 'app-new-training',
@@ -11,8 +12,7 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./new-training.component.css'],
 })
 export class NewTrainingComponent implements OnInit {
-  // we don't get the exerciseId from firebase => type any
-  exercises: Observable<any>;
+  exercises: Observable<Exercise[]>;
 
   constructor(
     private trainingService: TrainingService,
@@ -20,7 +20,21 @@ export class NewTrainingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.exercises = this.db.collection('availableExercises').valueChanges();
+    this.exercises = this.db
+      .collection('availableExercises')
+      .snapshotChanges()
+      .pipe(
+        map((docArray) => {
+          return docArray.map((doc) => {
+            return {
+              id: doc.payload.doc.id,
+              name: doc.payload.doc.data()['name'],
+              duration: doc.payload.doc.data()['duration'],
+              calories: doc.payload.doc.data()['calories'],
+            };
+          });
+        })
+      );
   }
 
   onStartTraining(form: NgForm) {
