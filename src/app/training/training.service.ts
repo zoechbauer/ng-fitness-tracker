@@ -45,7 +45,7 @@ export class TrainingService {
   }
 
   completeExercise() {
-    this.exercises.push({
+    this.addToDatabase({
       ...this.runningExercise,
       date: new Date(),
       state: 'completed',
@@ -56,7 +56,7 @@ export class TrainingService {
   }
 
   cancelExercise(progress: number) {
-    this.exercises.push({
+    this.addToDatabase({
       ...this.runningExercise,
       date: new Date(),
       state: 'cancelled',
@@ -74,5 +74,18 @@ export class TrainingService {
 
   getCompletedOrCancelledExercises() {
     return this.exercises.slice();
+  }
+
+  addToDatabase(exercise: Exercise) {
+    this.db
+      .collection('finishedExercises')
+      .add(exercise)
+      .then((res) => console.log('Stored successfully in Firebase', res))
+      .catch((err) =>
+        console.log(
+          'Firebase Error on saving collection finishedExercises',
+          err
+        )
+      );
   }
 }
