@@ -28,8 +28,8 @@ export class TrainingService {
               calories: doc.payload.doc.data()['calories'],
             };
           });
-        }),
-        tap((docArr) => console.log('service docArr', docArr))
+        })
+        // tap((docArr) => console.log('service docArr', docArr))
       )
       .subscribe((exercises: Exercise[]) => {
         this.availableExercises = exercises;
@@ -82,7 +82,7 @@ export class TrainingService {
       .subscribe((exercises: Exercise[]) => {
         // firebase returns date in seconds and nanoseconds
         // => convert value into milliseconds on pipe in template
-        console.log('fetchCompletedOrCancelledExercises', exercises);
+        // console.log('fetchCompletedOrCancelledExercises', exercises);
         this.finishedExercisesChanged.next(exercises);
       });
   }
@@ -91,12 +91,11 @@ export class TrainingService {
     this.db
       .collection('finishedExercises')
       .add(exercise)
-      .then((_) => console.log('Stored successfully in Firebase'))
+      .then((_) =>
+        console.log(`Exercise ${exercise.name} stored successfully in Firebase`)
+      )
       .catch((err) =>
-        console.log(
-          'Firebase Error on saving collection finishedExercises',
-          err
-        )
+        console.log(`Firebase Error on saving exercise ${exercise.name}`, err)
       );
   }
 }
