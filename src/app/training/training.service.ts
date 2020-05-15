@@ -7,10 +7,10 @@ import { Exercise } from './exercise.model';
 export class TrainingService {
   exerciseChanged = new Subject<Exercise>();
   exercisesChanged = new Subject<Exercise[]>();
+  finishedExercisesChanged = new Subject<Exercise[]>();
 
   private availableExercises: Exercise[] = [];
   private runningExercise: Exercise;
-  private exercises: Exercise[] = [];
 
   constructor(private db: AngularFirestore) {}
 
@@ -52,7 +52,6 @@ export class TrainingService {
     });
     this.runningExercise = null;
     this.exerciseChanged.next(null);
-    console.log('exercises statistic', this.exercises);
   }
 
   cancelExercise(progress: number) {
@@ -65,22 +64,29 @@ export class TrainingService {
     });
     this.runningExercise = null;
     this.exerciseChanged.next(null);
-    console.log('exercises statistic', this.exercises);
   }
 
   getRunningExercise() {
     return { ...this.runningExercise };
   }
 
-  getCompletedOrCancelledExercises() {
-    return this.exercises.slice();
+  fetchCompletedOrCancelledExercises() {
+    this.db
+      .collection('finishedExercises')
+      .valueChanges()
+      .subscribe((exercises: Exercise[]) => {
+        // firebase returns date in seconds and nanoseconds
+        // => convert value into milliseconds on pipe in template
+        console.log('fetchCompletedOrCancelledExercises', exercises);
+        this.finishedExercisesChanged.next(exercises);
+      });
   }
 
   addToDatabase(exercise: Exercise) {
     this.db
       .collection('finishedExercises')
       .add(exercise)
-      .then((res) => console.log('Stored successfully in Firebase', res))
+      .then((_) => console.log('Stored successfully in Firebase'))
       .catch((err) =>
         console.log(
           'Firebase Error on saving collection finishedExercises',
