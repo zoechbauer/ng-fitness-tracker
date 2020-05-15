@@ -38,6 +38,11 @@ export class TrainingService {
   }
 
   startExercise(selectedId: string) {
+    // example how we can update fields, new fields are automatically created
+    this.db
+      .doc('availableExercises/' + selectedId)
+      .update({ lastSelected: new Date() });
+
     this.runningExercise = this.availableExercises.find(
       (exercise) => exercise.id === selectedId
     );
