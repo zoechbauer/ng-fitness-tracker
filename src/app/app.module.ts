@@ -3,6 +3,9 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -18,6 +21,7 @@ import { HeaderComponent } from './navigation/header/header.component';
 import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.component';
 import { StopTrainingComponent } from './training/current-training/stop-training.component';
 import { AuthService } from './auth/auth.service';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -41,6 +45,9 @@ import { AuthService } from './auth/auth.service';
     FlexLayoutModule,
     FormsModule,
     ReactiveFormsModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
+    AngularFireAuthModule,
   ],
   providers: [AuthService],
   entryComponents: [StopTrainingComponent],
