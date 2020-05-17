@@ -12,6 +12,7 @@ import { Exercise } from '../exercise.model';
 export class NewTrainingComponent implements OnInit, OnDestroy {
   exercises: Exercise[];
   exercisesSub: Subscription;
+  isLoading = true;
 
   constructor(private trainingService: TrainingService) {}
 
@@ -20,6 +21,7 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
     this.exercisesSub = this.trainingService.exercisesChanged.subscribe(
       (exercises: Exercise[]) => {
         this.exercises = exercises;
+        this.isLoading = false;
       }
     );
   }
