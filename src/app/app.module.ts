@@ -12,7 +12,6 @@ import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.com
 import { AuthService } from './auth/auth.service';
 import { UIService } from './shared/ui.service';
 import { AuthModule } from './auth/auth.module';
-import { TrainingModule } from './training/training.module';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { environment } from 'src/environments/environment';
 
@@ -31,7 +30,6 @@ import { environment } from 'src/environments/environment';
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
     AuthModule,
-    TrainingModule,
   ],
   providers: [AuthService, UIService],
   bootstrap: [AppComponent],
