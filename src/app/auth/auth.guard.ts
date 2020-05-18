@@ -5,15 +5,15 @@ import {
   RouterStateSnapshot,
   UrlTree,
   Router,
+  CanLoad,
+  Route,
 } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // some differences to max's version because of cli creation
-@Injectable({
-  providedIn: 'root',
-})
-export class AuthGuard implements CanActivate {
+@Injectable()
+export class AuthGuard implements CanActivate, CanLoad {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(
@@ -24,6 +24,15 @@ export class AuthGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
+    if (this.authService.isAuth()) {
+      return true;
+    } else {
+      this.router.navigate(['/login']);
+      return false;
+    }
+  }
+
+  canLoad(next: Route) {
     if (this.authService.isAuth()) {
       return true;
     } else {
