@@ -9,6 +9,7 @@ import { AuthData } from './auth-data.model';
 import { TrainingService } from '../training/training.service';
 import { UIService } from '../shared/ui.service';
 import * as fromApp from '../app.reducer';
+import * as UI from '../shared/ui.actions';
 
 @Injectable()
 export class AuthService {
@@ -40,33 +41,27 @@ export class AuthService {
   }
 
   registerUser(user: AuthData) {
-    // this.uiService.loadingStateChanged.next(true);
-    this.store.dispatch({ type: 'START_LOADING' });
+    this.store.dispatch(new UI.StartLoading());
     this.afAuth
       .createUserWithEmailAndPassword(user.email, user.password)
       .then((result) => {
-        // this.uiService.loadingStateChanged.next(false);
-        this.store.dispatch({ type: 'STOP_LOADING' });
+        this.store.dispatch(new UI.StopLoading());
       })
       .catch((err) => {
-        // this.uiService.loadingStateChanged.next(false);
-        this.store.dispatch({ type: 'STOP_LOADING' });
+        this.store.dispatch(new UI.StopLoading());
         this.uiService.showSnackbar(err, null, 3);
       });
   }
 
   login(user: AuthData) {
-    // this.uiService.loadingStateChanged.next(true);
-    this.store.dispatch({ type: 'START_LOADING' });
+    this.store.dispatch(new UI.StartLoading());
     this.afAuth
       .signInWithEmailAndPassword(user.email, user.password)
       .then((result) => {
-        // this.uiService.loadingStateChanged.next(false);
-        this.store.dispatch({ type: 'STOP_LOADING' });
+        this.store.dispatch(new UI.StopLoading());
       })
       .catch((err) => {
-        // this.uiService.loadingStateChanged.next(false);
-        this.store.dispatch({ type: 'STOP_LOADING' });
+        this.store.dispatch(new UI.StopLoading());
         this.snackbar.open(err, null, { duration: 3000 });
         this.uiService.showSnackbar(err, null, 3);
       });
