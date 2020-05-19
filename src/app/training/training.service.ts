@@ -7,13 +7,16 @@ import { Store } from '@ngrx/store';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Exercise } from './exercise.model';
 import { UIService } from '../shared/ui.service';
-import * as fromApp from '../app.reducer';
+import * as fromTraining from './training.reducer';
+import * as Training from './training.actions';
 import * as UI from '../shared/ui.actions';
 @Injectable({ providedIn: 'root' })
 export class TrainingService {
+  // TODO delete not used variables
   exerciseChanged = new Subject<Exercise>();
   exercisesChanged = new Subject<Exercise[]>();
   finishedExercisesChanged = new Subject<Exercise[]>();
+
   fbSubs: Subscription[] = [];
 
   private availableExercises: Exercise[] = [];
@@ -22,7 +25,7 @@ export class TrainingService {
   constructor(
     private db: AngularFirestore,
     private uiService: UIService,
-    private store: Store<fromApp.State>
+    private store: Store<fromTraining.State>
   ) {}
 
   fetchAvailableExercises() {
@@ -47,8 +50,7 @@ export class TrainingService {
         )
         .subscribe(
           (exercises: Exercise[]) => {
-            this.availableExercises = exercises;
-            this.exercisesChanged.next([...this.availableExercises]);
+            this.store.dispatch(new Training.SetAvailableTrainings(exercises));
             this.store.dispatch(new UI.StopLoading());
           },
           (err) => {
@@ -70,10 +72,7 @@ export class TrainingService {
       .doc('availableExercises/' + selectedId)
       .update({ lastSelected: new Date() });
 
-    this.runningExercise = this.availableExercises.find(
-      (exercise) => exercise.id === selectedId
-    );
-    this.exerciseChanged.next({ ...this.runningExercise });
+    this.store.dispatch(new Training.StartTraining(selectedId));
   }
 
   completeExercise() {
@@ -82,8 +81,7 @@ export class TrainingService {
       date: new Date(),
       state: 'completed',
     });
-    this.runningExercise = null;
-    this.exerciseChanged.next(null);
+    this.store.dispatch(new Training.StopTraining());
   }
 
   cancelExercise(progress: number) {
@@ -94,8 +92,7 @@ export class TrainingService {
       duration: this.runningExercise.duration * (progress / 100),
       calories: this.runningExercise.calories * (progress / 100),
     });
-    this.runningExercise = null;
-    this.exerciseChanged.next(null);
+    this.store.dispatch(new Training.StopTraining());
   }
 
   getRunningExercise() {
@@ -112,7 +109,7 @@ export class TrainingService {
             // firebase returns date in seconds and nanoseconds
             // => convert value into milliseconds on pipe in template
             // console.log('fetchCompletedOrCancelledExercises', exercises);
-            this.finishedExercisesChanged.next(exercises);
+            this.store.dispatch(new Training.SetFinishedTrainings(exercises));
           },
           (err) => {
             console.log(err);

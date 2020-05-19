@@ -38,9 +38,13 @@ export function trainingReducer(state = initialState, action: TrainingActions) {
         finishedExercises: action.payload,
       };
     case START_TRAINING:
+      const actExercise = {
+        ...state.availableExercises.find((ex) => ex.id === action.payload),
+      };
+      console.log('Start Training', actExercise);
       return {
         ...state,
-        activeExercise: action.payload,
+        activeExercise: actExercise,
       };
     case STOP_TRAINING:
       return {
