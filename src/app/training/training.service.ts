@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-
 import { AngularFirestore } from '@angular/fire/firestore';
+
 import { Exercise } from './exercise.model';
 import { UIService } from '../shared/ui.service';
 import * as fromTraining from './training.reducer';
@@ -13,14 +13,14 @@ import * as UI from '../shared/ui.actions';
 @Injectable({ providedIn: 'root' })
 export class TrainingService {
   // TODO delete not used variables
-  exerciseChanged = new Subject<Exercise>();
-  exercisesChanged = new Subject<Exercise[]>();
+  // exerciseChanged = new Subject<Exercise>();
+  // exercisesChanged = new Subject<Exercise[]>();
   finishedExercisesChanged = new Subject<Exercise[]>();
 
   fbSubs: Subscription[] = [];
 
-  private availableExercises: Exercise[] = [];
-  private runningExercise: Exercise;
+  // private availableExercises: Exercise[] = [];
+  // private runningExercise: Exercise;
 
   constructor(
     private db: AngularFirestore,
@@ -76,27 +76,33 @@ export class TrainingService {
   }
 
   completeExercise() {
-    this.addToDatabase({
-      ...this.runningExercise,
-      date: new Date(),
-      state: 'completed',
-    });
+    this.store
+      .select(fromTraining.getActiveTraining)
+      .pipe(take(1))
+      .subscribe((ex) => {
+        this.addToDatabase({
+          ...ex,
+          date: new Date(),
+          state: 'completed',
+        });
+      });
     this.store.dispatch(new Training.StopTraining());
   }
 
   cancelExercise(progress: number) {
-    this.addToDatabase({
-      ...this.runningExercise,
-      date: new Date(),
-      state: 'cancelled',
-      duration: this.runningExercise.duration * (progress / 100),
-      calories: this.runningExercise.calories * (progress / 100),
-    });
+    this.store
+      .select(fromTraining.getActiveTraining)
+      .pipe(take(1))
+      .subscribe((ex) => {
+        this.addToDatabase({
+          ...ex,
+          date: new Date(),
+          state: 'cancelled',
+          duration: ex.duration * (progress / 100),
+          calories: ex.calories * (progress / 100),
+        });
+      });
     this.store.dispatch(new Training.StopTraining());
-  }
-
-  getRunningExercise() {
-    return { ...this.runningExercise };
   }
 
   fetchCompletedOrCancelledExercises() {
