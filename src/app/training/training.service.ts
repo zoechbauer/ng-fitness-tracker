@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
 import { map, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -12,15 +11,7 @@ import * as Training from './training.actions';
 import * as UI from '../shared/ui.actions';
 @Injectable({ providedIn: 'root' })
 export class TrainingService {
-  // TODO delete not used variables
-  // exerciseChanged = new Subject<Exercise>();
-  // exercisesChanged = new Subject<Exercise[]>();
-  finishedExercisesChanged = new Subject<Exercise[]>();
-
   fbSubs: Subscription[] = [];
-
-  // private availableExercises: Exercise[] = [];
-  // private runningExercise: Exercise;
 
   constructor(
     private db: AngularFirestore,
