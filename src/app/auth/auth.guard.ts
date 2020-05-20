@@ -9,12 +9,20 @@ import {
   Route,
 } from '@angular/router';
 import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+
 import { AuthService } from './auth.service';
+import * as fromRoot from '../app.reducer';
 
 // some differences to max's version because of cli creation
 @Injectable()
 export class AuthGuard implements CanActivate, CanLoad {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private store: Store<fromRoot.State>
+  ) {}
 
   canActivate(
     next: ActivatedRouteSnapshot,
@@ -24,20 +32,10 @@ export class AuthGuard implements CanActivate, CanLoad {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    if (this.authService.isAuth()) {
-      return true;
-    } else {
-      this.router.navigate(['/login']);
-      return false;
-    }
+    return this.store.select(fromRoot.getIsAuth).pipe(take(1));
   }
 
   canLoad(next: Route) {
-    if (this.authService.isAuth()) {
-      return true;
-    } else {
-      this.router.navigate(['/login']);
-      return false;
-    }
+    return this.store.select(fromRoot.getIsAuth).pipe(take(1));
   }
 }
