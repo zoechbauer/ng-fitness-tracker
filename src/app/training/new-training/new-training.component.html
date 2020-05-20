@@ -13,7 +13,7 @@
             required
           >
             <mat-option
-              *ngFor="let exercise of exercises"
+              *ngFor="let exercise of exercises$ | async"
               [value]="exercise.id"
               >{{ exercise.name }}</mat-option
             >
@@ -23,7 +23,7 @@
       </mat-card-content>
       <mat-card-actions fxLayoutAlign="center" *ngIf="!(isLoading$ | async)">
         <button
-          *ngIf="exercises"
+          *ngIf="exercises$ | async"
           type="submit"
           mat-button
           [disabled]="f.invalid"
@@ -31,7 +31,7 @@
           Start
         </button>
         <button
-          *ngIf="!exercises"
+          *ngIf="!(exercises$ | async)"
           type="button"
           mat-button
           (click)="fetchExercises()"
