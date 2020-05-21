@@ -31,9 +31,11 @@ export class TrainingService {
             return docArray.map((doc) => {
               return {
                 id: doc.payload.doc.id,
-                name: doc.payload.doc.data()['name'],
-                duration: doc.payload.doc.data()['duration'],
-                calories: doc.payload.doc.data()['calories'],
+                // get rid of tslint warnings
+                ...(doc.payload.doc.data() as Exercise),
+                // name: doc.payload.doc.data()['name'],
+                // duration: doc.payload.doc.data()['duration'],
+                // calories: doc.payload.doc.data()['calories'],
               };
             });
           })
