@@ -15,7 +15,7 @@ import { TrainingService } from '../training.service';
 @Component({
   selector: 'app-past-trainings',
   templateUrl: './past-trainings.component.html',
-  styleUrls: ['./past-trainings.component.css'],
+  styleUrls: ['./past-trainings.component.css'], 
 })
 export class PastTrainingsComponent
   implements OnInit, AfterViewInit, OnDestroy {
@@ -36,7 +36,7 @@ export class PastTrainingsComponent
     );
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit() { 
     this.datasource.sort = this.sort;
     this.datasource.paginator = this.paginator;
   }
@@ -46,6 +46,8 @@ export class PastTrainingsComponent
   }
 
   ngOnDestroy() {
-    this.exercisesSub.unsubscribe();
+    // te gjitha array observable i mbullim 
+    // ** na duhet te bej disa provo kur nuk e kemi fare unsubscribe se cfare do ndodhi me te dhenat ne console
+    this.exercisesSub.unsubscribe(); 
   }
 }
