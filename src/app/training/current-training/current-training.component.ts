@@ -11,12 +11,12 @@ import { Exercise } from '../exercise.model';
 })
 export class CurrentTrainingComponent implements OnInit {
   progress = 0;
-  timer: number;
+  timer: any;
   exercise: Exercise;
 
   constructor(
-    private dialog: MatDialog,
-    private trainingService: TrainingService
+    private dialog: MatDialog,  
+    private trainingService: TrainingService 
   ) {}
 
   ngOnInit(): void {
@@ -28,7 +28,7 @@ export class CurrentTrainingComponent implements OnInit {
     const step = (this.exercise.duration / 100) * 1000;
     this.timer = setInterval(() => {
       this.progress += 1;
-      if (this.progress >= 100) {
+      if (this.progress >= 100) { 
         clearInterval(this.timer);
         this.trainingService.completeExercise();
       }
@@ -44,7 +44,7 @@ export class CurrentTrainingComponent implements OnInit {
     dialogRef.afterClosed().subscribe((cancelWorkout) => {
       // console.log(cancelWorkout);
       if (cancelWorkout) {
-        this.trainingService.cancelExercise(this.progress);
+        this.trainingService.cancelExercise(this.progress); // ketu marim sasin e perqindjes
       } else {
         this.startOrResumeTimer();
       }

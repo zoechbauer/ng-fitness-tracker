@@ -17,6 +17,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 const MaterialModules = [
   MatButtonModule,
@@ -37,10 +38,11 @@ const MaterialModules = [
   MatTableModule,
   MatSortModule,
   MatPaginatorModule,
+  MatSnackBarModule
 ];
 
 @NgModule({
   imports: [MaterialModules],
-  exports: [MaterialModules],
+  exports: [MaterialModules], // exports na jep mundesi librarive te shperndahen ne te gjitha modulet
 })
 export class MaterialModule {}

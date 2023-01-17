@@ -3,32 +3,61 @@ import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { TrainingService } from '../training.service';
 import { Exercise } from '../exercise.model';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { UIService } from 'src/app/shared/ui.service';
 
 @Component({
   selector: 'app-new-training',
-  templateUrl: './new-training.component.html',
+  templateUrl: './new-training.component.html', 
   styleUrls: ['./new-training.component.css'],
 })
 export class NewTrainingComponent implements OnInit, OnDestroy {
-  exercises: Exercise[];
-  exercisesSub: Subscription;
 
-  constructor(private trainingService: TrainingService) {}
+  exercises: Exercise[];
+  isLoading = true;
+  private exerciseSubscription: Subscription;
+  private loadingSubscription: Subscription;
+ 
+  constructor( 
+    private trainingService: TrainingService, 
+    private uiService: UIService 
+  ) {}
 
   ngOnInit(): void {
-    this.trainingService.fetchAvailableExercises();
-    this.exercisesSub = this.trainingService.exercisesChanged.subscribe(
-      (exercises: Exercise[]) => {
-        this.exercises = exercises;
-      }
-    );
+
+    this.exersicesFunction();
+    this.spinnerFunction();
+
   }
 
   onStartTraining(form: NgForm) {
     this.trainingService.startExercise(form.value.exercise);
   }
 
-  ngOnDestroy() {
-    this.exercisesSub.unsubscribe();
+  exersicesFunction() {
+    this.trainingService.fetchAvailableExercises(); 
+    this.exerciseSubscription = this.trainingService.exercisesChanged.subscribe(
+      (exercises: Exercise[]) => {
+        console.log("exercises", exercises);
+        this.exercises = exercises;
+      } 
+    );
   }
-}
+
+  spinnerFunction() {
+    this.loadingSubscription = this.uiService.loadingStateChanged.subscribe(
+      isLoading => {
+        this.isLoading = isLoading;
+      }
+    );
+  }
+
+  fetchExercises() {
+    this.trainingService.fetchAvailableExercises();
+  }
+
+  ngOnDestroy() {
+    this.exerciseSubscription.unsubscribe();
+    this.loadingSubscription.unsubscribe();
+  }
+} 
