@@ -7,6 +7,10 @@ import { TrainingService } from '../training/training.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { UIService } from '../shared/ui.service';
 
+import { Store } from '@ngrx/store';
+import * as fromRoot from '../app.reducer';
+import * as UI from '../shared/ui.actions';
+
 
 @Injectable()
 export class AuthService {
@@ -19,7 +23,8 @@ export class AuthService {
     private afAuth: AngularFireAuth,
     private trainingService: TrainingService,
     private snackbar: MatSnackBar,
-    private uIService: UIService
+    private uIService: UIService,
+    private store: Store<fromRoot.State> // export interface State at app.reducer.ts
   ) {}
 
   initAuthListener() { 
@@ -39,27 +44,33 @@ export class AuthService {
   }
 
   registerUser(user: AuthData) {
-    this.uIService.loadingStateChanged.next(true); // mundesojme spinerin kur duhet hapur, mbyllur
+    // this.uIService.loadingStateChanged.next(true); // mundesojme spinerin kur duhet hapur, mbyllur
+    this.store.dispatch(new UI.StartLoading()); // 1. mbushim vleren me " isLoading: true " ne ui.actions.ts
     this.afAuth
       .createUserWithEmailAndPassword(user.email, user.password)
       .then((result) => {
-        this.uIService.loadingStateChanged.next(false);
+        // this.uIService.loadingStateChanged.next(false);
+        this.store.dispatch(new UI.StopLoading()); // mbushim vleren me " isLoading: false " ne ui.actions.ts
       })
       .catch((error) => {
-        this.uIService.loadingStateChanged.next(false);
+        // this.uIService.loadingStateChanged.next(false);
+        this.store.dispatch(new UI.StopLoading()); // mbushim vleren me " isLoading: false " ne ui.actions.ts
         this.uIService.showSnackbar(error.message, null, 3000);
       });
   }
 
   login(user: AuthData) {
-    this.uIService.loadingStateChanged.next(true);
+    // this.uIService.loadingStateChanged.next(true);
+    this.store.dispatch(new UI.StartLoading()); // 1. mbushim vleren me " isLoading: true " ne ui.actions.ts 
     this.afAuth
       .signInWithEmailAndPassword(user.email, user.password)
       .then((result) => {
-        this.uIService.loadingStateChanged.next(false);
+        // this.uIService.loadingStateChanged.next(false);
+        this.store.dispatch(new UI.StopLoading()); // mbushim vleren me " isLoading: false " ne ui.actions.ts
       })
       .catch((error) => {
-        this.uIService.loadingStateChanged.next(false);
+        // this.uIService.loadingStateChanged.next(false);
+        this.store.dispatch(new UI.StopLoading()); // mbushim vleren me " isLoading: false " ne ui.actions.ts
         this.uIService.showSnackbar(error.message, null, 3000);
       });
   }

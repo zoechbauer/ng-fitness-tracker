@@ -23,12 +23,15 @@ import { environment } from 'src/environments/environment';
 import { UIService } from './shared/ui.service';
 import { AuthModule } from './auth/auth.module';
 
+import { StoreModule } from '@ngrx/store';
+import { reducers } from './app.reducer';
+
 @NgModule({
   declarations: [
     AppComponent,
     WelcomeComponent,
     HeaderComponent, 
-    SidenavListComponent,
+    SidenavListComponent, 
   ],
   imports: [
     BrowserModule,
@@ -41,8 +44,9 @@ import { AuthModule } from './auth/auth.module';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,
-    AuthModule // Lidhim Sing in - up, nga AuthModule / auth-routing.module.ts
+    AuthModule, // Lidhim Sing in - up, nga AuthModule / auth-routing.module.ts
     // ndersa TrainingModule / TrainingRoutingModule e lidhim te app-rouing.module.ts, me funksjonin Lazy-loading
+    StoreModule.forRoot(reducers) // export const reducers: ActionReducerMap<State>
   ],
   providers: [AuthService, UIService],
   bootstrap: [AppComponent],

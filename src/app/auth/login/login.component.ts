@@ -1,22 +1,23 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
-import { Subscription } from 'rxjs';
-import { UIService } from 'src/app/shared/ui.service';
+
+import { Observable } from 'rxjs/Observable'; 
+import { Store } from '@ngrx/store';
+import * as fromRoot from '../../app.reducer';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'], 
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
-  isLoading = false;
-  private loadingSubs: Subscription; 
+  isLoading$: Observable<boolean>; // ?? pse e ben Observable kete 
 
   constructor( 
     private authService: AuthService, 
-    private uiService: UIService
+    private store: Store<fromRoot.State> // export interface State  ne app.reducer.ts
     ) {}
  
   ngOnInit() {
@@ -42,16 +43,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   spinnerFunction() {
-   this.loadingSubs = this.uiService.loadingStateChanged.subscribe(isLoading => {
-    this.isLoading = isLoading;
-   });
+
+     // 5. marim strukturen STATE nga ui.reucer.ts me ndimen e nderfaqes app.reducer.ts
+     this.isLoading$ = this.store.select(fromRoot.getIsLoading);
+
+         // ketu do bejme nje prove this.store.subscribe(data => console.log(data)); i i marim te dhenat ne kohe reale
+
+  //  this.loadingSubs = this.uiService.loadingStateChanged.subscribe(isLoading => {
+  //   this.isLoading = isLoading;
+  //  });
+
   }
 
 
-  ngOnDestroy(): void {
-    // pasi kemi theritur datat, mbyllim subscribe, ose e serojme ate 
-    // nese nuk eshtojme kete funksjone, objektit subscribe do i shtohen vlerat nga:
-    // this.loadingStateChanged.next(false); 
-    this.loadingSubs.unsubscribe();
-  }
 }

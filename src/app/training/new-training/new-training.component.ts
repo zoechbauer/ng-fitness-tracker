@@ -6,6 +6,10 @@ import { Exercise } from '../exercise.model';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { UIService } from 'src/app/shared/ui.service';
 
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable'; 
+import * as fromRoot from '../../app.reducer';
+
 @Component({
   selector: 'app-new-training',
   templateUrl: './new-training.component.html', 
@@ -16,11 +20,12 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
   exercises: Exercise[];
   isLoading = true;
   private exerciseSubscription: Subscription;
-  private loadingSubscription: Subscription;
+  isLoading$: Observable<boolean>;
  
   constructor( 
     private trainingService: TrainingService, 
-    private uiService: UIService 
+    private uiService: UIService,
+    private store: Store<fromRoot.State>
   ) {}
 
   ngOnInit(): void {
@@ -45,11 +50,14 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
   }
 
   spinnerFunction() {
-    this.loadingSubscription = this.uiService.loadingStateChanged.subscribe(
-      isLoading => {
-        this.isLoading = isLoading;
-      }
-    );
+
+    this.isLoading$ = this.store.select(fromRoot.getIsLoading);
+
+    // this.loadingSubscription = this.uiService.loadingStateChanged.subscribe(
+    //   isLoading => {
+    //     this.isLoading = isLoading;
+    //   }
+    // );
   }
 
   fetchExercises() {
@@ -58,6 +66,5 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.exerciseSubscription.unsubscribe();
-    this.loadingSubscription.unsubscribe();
   }
 } 
