@@ -22,10 +22,10 @@ export function uiReducer(state = initialState, action: UIActions) {
       return {
         isLoading: true 
       }; 
-    case STOP_LOADING:
+    case STOP_LOADING: 
       return {
         isLoading: false
-      };
+      }; 
     default: {
       return state;
     }

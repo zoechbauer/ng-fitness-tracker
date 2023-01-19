@@ -48,7 +48,7 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
       } 
     );
   }
-
+ 
   spinnerFunction() {
 
     this.isLoading$ = this.store.select(fromRoot.getIsLoading);

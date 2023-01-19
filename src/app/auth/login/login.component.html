@@ -7,7 +7,7 @@
     (ngSubmit)="onSubmit()"
   >
     <mat-form-field> 
-      <input
+      <input 
         type="email"
         matInput
         placeholder="Your email"
@@ -38,3 +38,5 @@
     <mat-spinner *ngIf="isLoading$ | async"></mat-spinner>
   </form>
 </section>
+<!-- te dhenat qe na fin observable i bejme subscribe ketu ne html me pipe async " {{isLoading$ | async}} "  -->
+

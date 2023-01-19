@@ -5,6 +5,8 @@ import { AuthService } from '../auth.service';
 import { Observable } from 'rxjs/Observable'; 
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../../app.reducer';
+import { take } from 'rxjs/operators';
+import { map } from 'rxjs/internal/operators/map';
 
 @Component({
   selector: 'app-login',
@@ -45,9 +47,9 @@ export class LoginComponent implements OnInit {
   spinnerFunction() {
 
      // 5. marim strukturen STATE nga ui.reucer.ts me ndimen e nderfaqes app.reducer.ts
-     this.isLoading$ = this.store.select(fromRoot.getIsLoading);
-
-         // ketu do bejme nje prove this.store.subscribe(data => console.log(data)); i i marim te dhenat ne kohe reale
+     this.isLoading$ = this.store.select(fromRoot.getIsLoading); 
+    
+    // ketu do bejme nje prove this.store.subscribe(data => console.log(data)); i i marim te dhenat ne kohe reale
 
   //  this.loadingSubs = this.uiService.loadingStateChanged.subscribe(isLoading => {
   //   this.isLoading = isLoading;

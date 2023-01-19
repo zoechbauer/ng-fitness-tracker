@@ -19,7 +19,7 @@ export class TrainingService {
 
   private availableExercises: Exercise[] = [];
   private runningExercise: Exercise; 
-
+ 
   constructor( 
     private db: AngularFirestore,
     private uiService: UIService,
