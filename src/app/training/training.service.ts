@@ -17,9 +17,10 @@ export class TrainingService {
   
   constructor( 
     private db: AngularFirestore,
-    private uiService: UIService,
+    private uiService: UIService, 
     // private store: Store<fromRoot.State> // export interface State at app.reducer.ts
-    private store: Store<fromTraining.State>
+    // pra kemi ber lidhjen e dy files reducers me njeri tjetrin nga " export interface State extends fromRoot.State  "
+    private store: Store<fromTraining.State> 
   ) {}
  
   fetchAvailableExercises() {
