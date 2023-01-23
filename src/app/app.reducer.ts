@@ -7,7 +7,7 @@ import * as fromAuth from './auth/auth.reducer';
 export interface State {
   ui: fromUi.State; // export interface State at ui.reducer.ts
   auth: fromAuth.State;
-}
+} 
 
 export const reducers: ActionReducerMap<State> = { // e lidhim ne app.module.ts "  StoreModule.forRoot(reducers)  "
   ui: fromUi.uiReducer, // export function uiReducer(state = initialState, action: UIActions)

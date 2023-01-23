@@ -2,8 +2,7 @@ import {
   Component,
   OnInit,
   ViewChild,
-  AfterViewInit,
-  OnDestroy,
+  AfterViewInit
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
@@ -12,42 +11,43 @@ import { MatPaginator } from '@angular/material/paginator';
 import { Exercise } from '../exercise.model';
 import { TrainingService } from '../training.service';
 
+import { Store } from '@ngrx/store';
+import * as fromTraining from '../training.reducer';
+
 @Component({
   selector: 'app-past-trainings',
   templateUrl: './past-trainings.component.html',
   styleUrls: ['./past-trainings.component.css'], 
 })
 export class PastTrainingsComponent
-  implements OnInit, AfterViewInit, OnDestroy {
-  datasource = new MatTableDataSource<Exercise>();
+  implements OnInit, AfterViewInit {
+    dataSource = new MatTableDataSource<Exercise>();
   displayedColumns = ['date', 'name', 'duration', 'calories', 'state'];
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  exercisesSub: Subscription;
 
-  constructor(private trainingService: TrainingService) {}
+  constructor( 
+    private trainingService: TrainingService, 
+    private store: Store<fromTraining.State> 
+  ) {}
 
   ngOnInit(): void {
-    this.trainingService.fetchCompletedOrCancelledExercises();
-    this.exercisesSub = this.trainingService.finishedExercisesChanged.subscribe(
-      (excercises: Exercise[]) => {
-        this.datasource.data = excercises;
-      }
+    // nga " fromTraining.getFinishedExercises ", therasim funksjonin " export const getFinishedExercises = createSelector(getTrainingState, (state: TrainingState) => state.finishedExercises); " ,
+    // duke mar ARRAY "   finishedExercises: Exercise[] " me objekte brenda
+    this.store.select(fromTraining.getFinishedExercises).subscribe(
+      (exercises: Exercise[]) => {
+        this.dataSource.data = exercises;
+      } 
     );
+    this.trainingService.fetchCompletedOrCancelledExercises();
   }
 
   ngAfterViewInit() { 
-    this.datasource.sort = this.sort;
-    this.datasource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
   }
 
   doFilter(filterText: string) {
-    this.datasource.filter = filterText.trim().toLowerCase();
-  }
-
-  ngOnDestroy() {
-    // te gjitha array observable i mbullim 
-    // ** na duhet te bej disa provo kur nuk e kemi fare unsubscribe se cfare do ndodhi me te dhenat ne console
-    this.exercisesSub.unsubscribe(); 
+    this.dataSource.filter = filterText.trim().toLowerCase();
   }
 }

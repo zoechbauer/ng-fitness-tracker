@@ -1,29 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Exercise } from './exercise.model';
 import { UIService } from '../shared/ui.service';
-
-import { Store } from '@ngrx/store';
 import * as UI from '../shared/ui.actions';
-import * as fromRoot from '../app.reducer';
+import { Store } from '@ngrx/store';
+
+// import * as fromRoot from '../app.reducer';
+import * as Training from './training.actions';
+import * as fromTraining from './training.reducer';
+import { take, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class TrainingService {
-  exerciseChanged = new Subject<Exercise>();
-  exercisesChanged = new Subject<Exercise[]>();
-  finishedExercisesChanged = new Subject<Exercise[]>(); 
   fbSubs: Subscription[] = [];
-
-  private availableExercises: Exercise[] = [];
-  private runningExercise: Exercise; 
- 
+  
   constructor( 
     private db: AngularFirestore,
     private uiService: UIService,
-    private store: Store<fromRoot.State> // export interface State at app.reducer.ts
+    // private store: Store<fromRoot.State> // export interface State at app.reducer.ts
+    private store: Store<fromTraining.State>
   ) {}
  
   fetchAvailableExercises() {
@@ -49,16 +45,57 @@ export class TrainingService {
         )
         .subscribe(
           (exercises: Exercise[]) => {
-            // this.uiService.loadingStateChanged.next(false);
+            // aktivizojme isLoading: false
+            this.store.dispatch(new UI.StopLoading()); 
+            // aktivizojme availableExercises: action.payload == exercises == me nje object data
+            this.store.dispatch(new Training.SetAvailableTrainings(exercises)); 
+          },
+          error => {
+            // aktivizojme isLoading: false
             this.store.dispatch(new UI.StopLoading());
-            this.availableExercises = exercises;
-            this.exercisesChanged.next([...this.availableExercises]); 
-          }, (error) => {
-            // this.uiService.loadingStateChanged.next(false);
-            this.store.dispatch(new UI.StopLoading());
-            this.uiService.showSnackbar('Fetching Exercises failed, please try again later', null, 3000);
-            this.exercisesChanged.next(null);
+            this.uiService.showSnackbar(
+              'Fetching Exercises failed, please try again later',
+              null,
+              3000
+            ); 
           }));
+  }
+
+  startExercise(selectedId: string) {
+    // aktivizojme "  activeTraining: { ...state.availableExercises.find(ex => ex.id === action.payload) } " , ku:
+    // action.payload == selectedId
+    this.store.dispatch(new Training.StartTraining(selectedId)); // ketu po shtojme vetem nje string 
+  }
+
+  completeExercise() {
+
+    // marim objectin specifik te cilen e gjeme nga " Training.StartTraining(selectedId) "
+    // ku " fromTraining.getActiveTraining " == " export const getActiveTraining = createSelector(getTrainingState, (state: TrainingState) => state.activeTraining); "
+    this.store.select(fromTraining.getActiveTraining).pipe(take(1)).subscribe(ex => { // take(1) => na lejoj ne te shfaqim vetem nje vler observable te cilen e bejme subscribe
+      console.log("fromTraining.getActiveTraining", ex);
+      // pasi regjistrojme objektin me te dhena te cilen e kemi gjetur me ID STRING me lart e bashkangjisim ne funksjonin private addDataToDatabase(exercise: Exercise)
+      this.addDataToDatabase({ 
+        ...ex,
+        date: new Date(),
+        state: 'completed'
+      });
+      this.store.dispatch(new Training.StopTraining()); // dhe me pas objektin qe rujtem me lart e fshim "  activeTraining: null "
+
+      // te njeta procedura ndjekim ne funksjonin "  cancelExercise(progress: number) "
+    });
+  }
+
+  cancelExercise(progress: number) {
+    this.store.select(fromTraining.getActiveTraining).pipe(take(1)).subscribe(ex => {
+      this.addDataToDatabase({
+        ...ex,
+        duration: ex.duration * (progress / 100),
+        calories: ex.calories * (progress / 100), 
+        date: new Date(),
+        state: 'cancelled'
+      });
+      this.store.dispatch(new Training.StopTraining());
+    });
   }
 
   fetchCompletedOrCancelledExercises() {
@@ -66,76 +103,19 @@ export class TrainingService {
       this.db
         .collection('finishedExercises')
         .valueChanges()
-        .subscribe(
-          (exercises: Exercise[]) => {
-            
-            this.finishedExercisesChanged.next(exercises);
-          },
-          (err) => {
-            console.log(err);
-          }
-        )
+        .subscribe((exercises: Exercise[]) => {
+          // ketu do kjotrollojme, dergojme nje objekt apo nje array ?????????
+          this.store.dispatch(new Training.SetFinishedTrainings(exercises)); // ketu me duket se po shton nje obejek brenda array " finishedExercises: [], " nga " finishedExercises: action.payload "
+        })
     );
   }
 
   cancelSubscriptions() {
-    console.log(" this.fbSubs",  this.fbSubs);
-    this.fbSubs.forEach((sub: Subscription) => { 
-      sub.unsubscribe();
-      console.log("subsub", sub); 
-    });
+    this.fbSubs.forEach(sub => sub.unsubscribe());
   }
 
-  startExercise(selectedId: string) {// ketu marim id e ushtrimit qe zgjedhim i cili eshte nje string barcode
-    // example how we can update fields, new fields are automatically created
-    this.db
-     // availableExercises/ + id string ku ne jemi duke selektur vetem nje objekt brenda array " availableExercises "
-      .doc('availableExercises/' + selectedId)
-      .update({ lastSelected: new Date() }); // **** ketu me von do bej ca prova per set() dhe delete(), te tabela qe shfaq te dhenat 
-
-    this.runningExercise = this.availableExercises.find(
-      (exercise) => exercise.id === selectedId
-    );
-    this.exerciseChanged.next({ ...this.runningExercise }); // regjistrojme vetem nje objekt observable
+  private addDataToDatabase(exercise: Exercise) {
+    this.db.collection('finishedExercises').add(exercise);
   }
-
-  getRunningExercise() {
-    return { ...this.runningExercise };
-  }
-
-  completeExercise() {
-    this.addToDatabase({
-      ...this.runningExercise,
-      date: new Date(),
-      state: 'completed',
-    });
-    this.runningExercise = null;
-    this.exerciseChanged.next(null);
-  }
-
-  cancelExercise(progress: number) {
-    this.addToDatabase({
-      ...this.runningExercise,
-      date: new Date(), 
-      state: 'cancelled',
-      duration: this.runningExercise.duration * (progress / 100),
-      calories: this.runningExercise.calories * (progress / 100),
-    });
-    this.runningExercise = null;
-    this.exerciseChanged.next(null);
-  }
-
-  // ** ketu do kontrolloj, marim array apo object data nga  completeExercise dhe cancelExercise
-  addToDatabase(exercise: Exercise) { 
-    this.db
-      .collection('finishedExercises')
-      .add(exercise) // krijojme nje array me emer finishedExercises duke i shtuar nje objet brenda tij ne menyr atomatike
-      .then((_) => // then tregon objektin e tedhenave qe regjistrohen sukseshem ne firibase
-        console.log(`Exercise ${exercise.name} stored successfully in Firebase`)
-      )
-      .catch((err) =>
-        console.log(`Firebase Error on saving exercise ${exercise.name}`, err)
-      );
-  } 
 
 }

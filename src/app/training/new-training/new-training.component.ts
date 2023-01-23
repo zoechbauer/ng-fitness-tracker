@@ -1,31 +1,28 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { TrainingService } from '../training.service';
-import { Exercise } from '../exercise.model';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { UIService } from 'src/app/shared/ui.service';
+import { Observable } from 'rxjs/Observable'; 
 
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable'; 
+import { Exercise } from '../exercise.model';
+import { TrainingService } from '../training.service';
 import * as fromRoot from '../../app.reducer';
+import * as fromTraining from '../training.reducer';
+
 
 @Component({
   selector: 'app-new-training',
   templateUrl: './new-training.component.html', 
   styleUrls: ['./new-training.component.css'],
 })
-export class NewTrainingComponent implements OnInit, OnDestroy {
+export class NewTrainingComponent implements OnInit{
 
-  exercises: Exercise[];
-  isLoading = true;
-  private exerciseSubscription: Subscription;
+  exercises$: Observable<Exercise[]>;
   isLoading$: Observable<boolean>;
  
   constructor( 
     private trainingService: TrainingService, 
-    private uiService: UIService,
-    private store: Store<fromRoot.State>
+    // private store: Store<fromRoot.State>
+    private store: Store<fromTraining.State>
   ) {}
 
   ngOnInit(): void {
@@ -40,13 +37,10 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
   }
 
   exersicesFunction() {
+    // nga " fromTraining.getAvailableExercises " therasim funksjonin " export const getAvailableExercises = createSelector(getTrainingState, (state: TrainingState) => state.availableExercises); ",
+    // i cili theret ARRAY "  availableExercises: Exercise[]; " me te gjitha vlerat brenda, ku ne me pas i bejme: " *ngFor="let exercise of exercises$ | async" "
+    this.exercises$ = this.store.select(fromTraining.getAvailableExercises);
     this.trainingService.fetchAvailableExercises(); 
-    this.exerciseSubscription = this.trainingService.exercisesChanged.subscribe(
-      (exercises: Exercise[]) => {
-        console.log("exercises", exercises);
-        this.exercises = exercises;
-      } 
-    );
   }
  
   spinnerFunction() {
@@ -64,7 +58,4 @@ export class NewTrainingComponent implements OnInit, OnDestroy {
     this.trainingService.fetchAvailableExercises();
   }
 
-  ngOnDestroy() {
-    this.exerciseSubscription.unsubscribe();
-  }
 } 

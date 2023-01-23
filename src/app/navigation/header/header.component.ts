@@ -32,6 +32,7 @@ export class HeaderComponent implements OnInit{
     //   this.isAuth = authState;
     // });
     this.isAuth$ = this.store.select(fromRoot.getIsAuth);
+    console.log(" this.isAuth$",  this.isAuth$);
   }
 
   onToggleSidenav() {
